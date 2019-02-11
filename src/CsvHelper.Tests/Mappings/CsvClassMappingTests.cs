@@ -132,6 +132,20 @@ namespace CsvHelper.Tests
 			Assert.AreEqual( true, config.Maps[typeof( A )].MemberMaps[0].Data.Ignore );
 		}
 
+        [TestMethod]
+        public void MissingPropertyTest()
+        {
+            try
+            {
+                var config = new CsvHelper.Configuration.Configuration();
+                config.RegisterClassMap<TestMappingMissingMember>();
+            }
+            catch(InvalidOperationException ex )
+            {
+                Assert.AreEqual( "No members were found in expression 'm => null'.", ex.Message );
+            }
+        }
+
 		private class A
 		{
 			public int AId { get; set; }
@@ -232,5 +246,15 @@ namespace CsvHelper.Tests
 				Map( m => m.StringColumn ).Name( "string1", "string2", "string3" );
 			}
 		}
-	}
+
+        private sealed class TestMappingMissingMember : ClassMap<TestClass>
+        {
+            public TestMappingMissingMember()
+            {
+                Map( m => m.GuidColumn ).Index( 0 );
+                Map( m => m.IntColumn ).Index( 1 );
+                Map<string>( m => null ).Index( 2 );
+            }
+        }
+    }
 }
